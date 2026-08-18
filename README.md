@@ -1,2 +1,2 @@
-# JanSahayak-AI
-Multilingual AI assistant for underserved communities in India.
+# Sahay Saathi
+AI-powered citizen assistance platform.

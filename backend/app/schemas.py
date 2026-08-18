@@ -55,6 +55,7 @@ class ChatRequest(BaseModel):
 
 class IntentRoutingInfo(BaseModel):
     intent: str = Field(..., description="The classified intent of the query.")
+    domain: str = Field(..., description="The broader domain of the query (e.g. agriculture, government, livelihood).")
     confidence: float = Field(..., description="The confidence score between 0.0 and 1.0.")
     needsClarification: bool = Field(..., description="True if query is too ambiguous.")
     needsLocation: bool = Field(..., description="True if location access is required for live data.")
@@ -71,5 +72,6 @@ class ChatResponse(BaseModel):
     warning: str = Field(..., description="Safety or verification warning message.")
     language: str = Field(..., description="Response language indicator.")
     intent: str = Field(..., description="The intent classified for this query.")
+    domain: str = Field(..., description="The domain classified for this query.")
     actionable_next_step: Optional[str] = Field(..., description="Clear, user-friendly next action instructions. Can be null if clarification is needed.")
 

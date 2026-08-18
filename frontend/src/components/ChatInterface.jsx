@@ -11,6 +11,29 @@ const HELPLINES = [
   { name: "Child Helpline", phone: "1098", desc: "Child care & protection" }
 ];
 
+const getDomainBadge = (intent, domain) => {
+  const normIntent = (intent || '').toLowerCase();
+  const normDomain = (domain || '').toLowerCase();
+  
+  if (normIntent === 'crop_health') return { emoji: '🌾', label: 'Crop Health Help' };
+  if (normIntent === 'irrigation') return { emoji: '💧', label: 'Irrigation Support' };
+  if (normIntent === 'weather') return { emoji: '🌤️', label: 'Weather Information' };
+  if (normIntent === 'market_price') return { emoji: '📈', label: 'Market Price Help' };
+  if (normIntent === 'pricing') return { emoji: '🏷️', label: 'Product Pricing Help' };
+  if (normIntent === 'inventory') return { emoji: '📦', label: 'Inventory Assistance' };
+  if (normIntent === 'market_access') return { emoji: '🌐', label: 'Market Access Help' };
+  if (normIntent === 'financial_support') return { emoji: '💰', label: 'Financial Support' };
+  if (normIntent === 'skill_development') return { emoji: '🎓', label: 'Skill Training' };
+  if (normIntent === 'accessibility') return { emoji: '♿', label: 'Accessibility Aid' };
+  if (normIntent === 'safety') return { emoji: '🛡️', label: 'Safety Guidelines' };
+  if (normIntent === 'emergency_help') return { emoji: '🚨', label: 'Emergency Help' };
+  if (normDomain === 'government') return { emoji: '🏛️', label: 'Government Service' };
+  if (normDomain === 'agriculture') return { emoji: '🌾', label: 'Agricultural Advice' };
+  if (normDomain === 'livelihood') return { emoji: '💼', label: 'Livelihood Support' };
+  
+  return { emoji: '👤', label: 'General Assistance' };
+};
+
 export default function ChatInterface({ userType, language, onBack }) {
   const [messages, setMessages] = useState([]);
   const [inputText, setInputText] = useState('');
@@ -146,6 +169,7 @@ export default function ChatInterface({ userType, language, onBack }) {
         sources: data.sources,
         warning: data.warning,
         intent: data.intent,
+        domain: data.domain,
         actionable_next_step: data.actionable_next_step
       }]);
     } catch (err) {
@@ -271,11 +295,17 @@ export default function ChatInterface({ userType, language, onBack }) {
                           : 'bg-white border border-slate-200 text-slate-800 rounded-bl-none'
                       }`}
                     >
-                      {m.sender === 'assistant' && m.intent && (
+                      {m.sender === 'assistant' && (m.intent || m.domain) && (
                         <div className="mb-2">
-                          <span className="text-[10px] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">
-                            {m.intent.replace('_', ' ')}
-                          </span>
+                          {(() => {
+                            const badge = getDomainBadge(m.intent, m.domain);
+                            return (
+                              <span className="inline-flex items-center gap-1 bg-emerald-100 text-emerald-800 text-[11px] px-2.5 py-0.5 rounded-full font-bold shadow-sm">
+                                <span>{badge.emoji}</span>
+                                <span>{badge.label}</span>
+                              </span>
+                            );
+                          })()}
                         </div>
                       )}
                       
@@ -320,6 +350,17 @@ export default function ChatInterface({ userType, language, onBack }) {
                           <div className="font-bold flex-shrink-0">Next Action:</div>
                           <div>{m.actionable_next_step}</div>
                         </div>
+                      )}
+
+                      {/* Debug Details */}
+                      {m.sender === 'assistant' && (m.intent || m.domain) && (
+                        <details className="mt-2.5 text-[10px] text-slate-400 border-t border-slate-100 pt-1.5 cursor-pointer">
+                          <summary className="hover:text-slate-600 font-medium">Debug Information</summary>
+                          <div className="mt-1 font-mono bg-slate-50 p-2 rounded border border-slate-200 text-slate-500 space-y-0.5">
+                            <div>Intent: {m.intent}</div>
+                            <div>Domain: {m.domain}</div>
+                          </div>
+                        </details>
                       )}
                     </div>
                   </div>

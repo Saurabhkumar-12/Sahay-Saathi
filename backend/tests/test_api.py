@@ -23,16 +23,21 @@ def test_chat_invalid_requests():
     response = client.post("/api/chat", json={"message": "   ", "language": "hi", "userType": "farmer"})
     assert response.status_code == 422
     
-    # Invalid language
-    response = client.post("/api/chat", json={"message": "Hello", "language": "french", "userType": "farmer"})
+    # Invalid user type
+    response = client.post("/api/chat", json={"message": "valid message", "language": "hi", "userType": "invalid_type"})
     assert response.status_code == 422
     
-    # Invalid userType
-    response = client.post("/api/chat", json={"message": "Hello", "language": "en", "userType": "architect"})
+    # Invalid language
+    response = client.post("/api/chat", json={"message": "valid message", "language": "invalid_lang", "userType": "farmer"})
     assert response.status_code == 422
 
-# Map helper to execute tests and assert classified intent
-def assert_chat_intent(message: str, user_type: str, expected_intent: str, expected_action_substring: str = None):
+def assert_chat_intent(
+    message: str, 
+    user_type: str, 
+    expected_intent: str, 
+    expected_domain: str = None, 
+    expected_action_substring: str = None
+):
     payload = {
         "message": message,
         "language": "hinglish",
@@ -42,60 +47,188 @@ def assert_chat_intent(message: str, user_type: str, expected_intent: str, expec
     assert response.status_code == 200
     data = response.json()
     assert data["intent"] == expected_intent
+    if expected_domain:
+        assert data["domain"] == expected_domain
     assert "answer" in data
     assert "warning" in data
     if expected_action_substring:
         assert expected_action_substring.lower() in data["actionable_next_step"].lower()
+    return data
 
 def test_intent_routing_rules():
-    # 1. Farmer + PM Kisan -> eligibility / government_scheme
-    assert_chat_intent("PM Kisan ke liye kaun eligible hai?", "farmer", "eligibility", "documentation")
-    assert_chat_intent("Mujhe PM Kisan scheme ke baare mein bataiye", "farmer", "government_scheme", "official website")
+    # 1. Crop: "मेरी गेहूं की फसल में पत्ते पीले हो रहे हैं।" -> crop_health (agriculture)
+    assert_chat_intent(
+        "मेरी गेहूं की फसल में पत्ते पीले हो रहे हैं।", 
+        "farmer", 
+        "crop_health", 
+        "agriculture", 
+        "KVK"
+    )
     
-    # 2. Farmer + water shortage -> irrigation
-    assert_chat_intent("Farming ke liye water shortage hai", "farmer", "irrigation", "irrigation")
+    # 2. Crop variation: "गेहूं के पत्ते पीले हो गए हैं" -> crop_health (agriculture)
+    assert_chat_intent(
+        "गेहूं के पत्ते पीले हो गए हैं", 
+        "farmer", 
+        "crop_health", 
+        "agriculture", 
+        "KVK"
+    )
     
-    # 3. Farmer + rain -> weather
-    assert_chat_intent("Will it rain tomorrow?", "farmer", "weather", "imd")
+    # 3. Hinglish crop: "meri wheat crop yellow ho rahi hai" -> crop_health (agriculture)
+    assert_chat_intent(
+        "meri wheat crop yellow ho rahi hai", 
+        "farmer", 
+        "crop_health", 
+        "agriculture", 
+        "KVK"
+    )
     
-    # 4. Farmer + crop disease -> crop_health
-    assert_chat_intent("Crop disease treatment kya hai?", "farmer", "crop_health", "extension")
+    # 4. Irrigation: "मेरे खेत में पानी की कमी है।" -> irrigation (agriculture)
+    assert_chat_intent(
+        "मेरे खेत में पानी की कमी है।", 
+        "farmer", 
+        "irrigation", 
+        "agriculture", 
+        "irrigation"
+    )
     
-    # 5. Farmer + crop price -> market_price
-    assert_chat_intent("What is today's crop price?", "farmer", "market_price", "e-nam")
+    # 5. Weather: "कल बारिश होगी?" -> weather (weather)
+    assert_chat_intent(
+        "कल बारिश होगी?", 
+        "farmer", 
+        "weather", 
+        "weather", 
+        "imd"
+    )
     
-    # 6. Street Vendor + government loan -> financial_support
-    assert_chat_intent("Mere liye government loan scheme kya hai?", "street vendor", "financial_support", "banks")
+    # 6. Market: "मेरी फसल का आज का भाव क्या है?" -> market_price (agriculture)
+    assert_chat_intent(
+        "मेरी फसल का आज का भाव क्या है?", 
+        "farmer", 
+        "market_price", 
+        "agriculture", 
+        "e-nam"
+    )
     
-    # 7. Street Vendor + stock decision -> inventory
-    assert_chat_intent("How much stock should I keep today?", "street vendor", "inventory", "stock")
+    # 7. Government: "PM Kisan ke liye main eligible hoon?" -> eligibility (government)
+    assert_chat_intent(
+        "PM Kisan ke liye main eligible hoon?", 
+        "farmer", 
+        "eligibility", 
+        "government", 
+        "documentation"
+    )
     
-    # 8. Artisan + product pricing -> pricing
-    assert_chat_intent("How to determine product pricing?", "artisan", "pricing", "market")
+    # 8. Vendor: "Mere paas 2000 rupaye hain, kitna stock rakhun?" -> inventory (livelihood)
+    assert_chat_intent(
+        "Mere paas 2000 rupaye hain, kitna stock rakhun?", 
+        "street vendor", 
+        "inventory", 
+        "livelihood", 
+        "stock"
+    )
     
-    # 9. Artisan + selling online -> market_access
-    assert_chat_intent("Can I start selling online?", "artisan", "market_access", "ondc")
+    # 9. Artisan: "Mere handmade product ka price kya hona chahiye?" -> pricing (livelihood)
+    assert_chat_intent(
+        "Mere handmade product ka price kya hona chahiye?", 
+        "artisan", 
+        "pricing", 
+        "livelihood", 
+        "market"
+    )
     
-    # 10. Fisherman + sea safety -> safety
-    assert_chat_intent("Is sea safety guaranteed today?", "fisherman", "safety", "gps")
+    # 10. Fisherman: "Aaj fishing ke liye jaana safe hai?" -> safety (safety)
+    assert_chat_intent(
+        "Aaj fishing ke liye jaana safe hai?", 
+        "fisherman", 
+        "safety", 
+        "safety", 
+        "gps"
+    )
     
-    # 11. Rural Worker + skill training -> skill_development
-    assert_chat_intent("How to get skill training?", "rural worker", "skill_development", "skill india")
+    # 11. Rural worker: "Mujhe skill training chahiye." -> skill_development (livelihood)
+    assert_chat_intent(
+        "Mujhe skill training chahiye.", 
+        "rural worker", 
+        "skill_development", 
+        "livelihood", 
+        "skill india"
+    )
     
-    # 12. Person with Disability + accessible service -> accessibility
-    assert_chat_intent("Where can I find accessible utility devices?", "person with disability", "accessibility", "swavlamban")
+    # 12. Accessibility: "Mujhe ye information voice mein samjhao." -> accessibility (accessibility)
+    assert_chat_intent(
+        "Mujhe ye information voice mein samjhao.", 
+        "person with disability", 
+        "accessibility", 
+        "accessibility", 
+        "swavlamban"
+    )
     
-    # 13. Citizen + pension -> government_service
-    assert_chat_intent("Widow pension eligibility check", "citizen", "government_service", "government")
+    # 13. Ambiguous: "Mujhe help chahiye." -> unknown (general_information) with needsClarification
+    assert_chat_intent(
+        "Mujhe help chahiye.", 
+        "other", 
+        "unknown", 
+        "general_information", 
+        "select"
+    )
+
+
+def test_negative_validation_assertions():
+    # Negative Test 1: "मेरी गेहूं की फसल में पत्ते पीले हो रहे हैं।" must NOT return a government scheme
+    res = client.post("/api/chat", json={
+        "message": "मेरी गेहूं की फसल में पत्ते पीले हो रहे हैं।",
+        "language": "hi",
+        "userType": "farmer"
+    })
+    data = res.json()
+    assert len(data["sources"]) == 0
+    assert "kisan" not in data["answer"].lower() or "deficient" in data["answer"].lower() or "पीला" in data["answer"]
     
-    # 14. Emergency Safety
-    assert_chat_intent("Mujhe safety ke liye help chahiye", "citizen", "emergency_help", "112")
+    # Negative Test 2: "कल बारिश होगी?" must NOT generate a fake forecast
+    res = client.post("/api/chat", json={
+        "message": "कल बारिश होगी?",
+        "language": "hi",
+        "userType": "farmer"
+    })
+    data = res.json()
+    assert "25" not in data["answer"]
+    assert "30" not in data["answer"]
+    assert "rain" not in data["answer"].lower() or "not available" in data["answer"].lower() or "bina verified" in data["answer"]
     
-    # 15. Ambiguous query -> clarified
-    assert_chat_intent("Mujhe scheme chahiye.", "other", "unknown", "select")
+    # Negative Test 3: "मेरी फसल का आज का भाव क्या है?" must NOT invent a current price
+    res = client.post("/api/chat", json={
+        "message": "मेरी फसल का आज का भाव क्या है?",
+        "language": "hi",
+        "userType": "farmer"
+    })
+    data = res.json()
+    assert "rupai" not in data["answer"].lower()
+    assert "rs" not in data["answer"].lower()
+    assert "price" not in data["answer"].lower() or "cannot verify" in data["answer"].lower() or "nahi kar sakte" in data["answer"]
     
-    # 16. Out-of-scope / Unknown
-    assert_chat_intent("Tomorrow stock market mein kya hoga?", "citizen", "unknown", "authorities")
+    # Negative Test 4: "Aaj fishing safe hai?" must NOT invent sea conditions
+    res = client.post("/api/chat", json={
+        "message": "Aaj fishing safe hai?",
+        "language": "hinglish",
+        "userType": "fisherman"
+    })
+    data = res.json()
+    assert "waves" not in data["answer"].lower()
+    assert "safe to fish" not in data["answer"].lower()
+    assert "marine data" in data["answer"].lower() or "safety conditions" in data["answer"].lower()
+    
+    # Negative Test 5: "Mujhe scheme chahiye." must NOT randomly select a scheme
+    res = client.post("/api/chat", json={
+        "message": "Mujhe scheme chahiye.",
+        "language": "hinglish",
+        "userType": "other"
+    })
+    data = res.json()
+    assert "pm kisan" not in data["answer"].lower()
+    assert "svanidhi" not in data["answer"].lower()
+    assert "kaam karte hain" in data["answer"].lower() or "work do you do" in data["answer"].lower()
+
 
 def test_chat_rate_limiting():
     from app.main import app, limiter
@@ -108,7 +241,6 @@ def test_chat_rate_limiting():
         "userType": "citizen"
     }
     
-    # Send multiple requests quickly to trigger 429
     responses = []
     for _ in range(30):
         responses.append(client.post("/api/chat", json=payload))

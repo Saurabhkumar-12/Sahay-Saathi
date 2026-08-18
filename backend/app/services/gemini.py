@@ -93,11 +93,12 @@ RULES:
     try:
         # Call model to see if it wants to invoke a tool
         response = client.models.generate_content(
-            model="gemini-3.6-flash",
+            model=os.environ.get("GEMINI_MODEL", "gemini-3.5-flash"),
             contents=message,
             config=types.GenerateContentConfig(
                 system_instruction=system_instruction,
                 tools=tools_list,
+                automatic_function_calling=types.AutomaticFunctionCallingConfig(disable=True),
                 temperature=0.1
             )
         )
@@ -115,7 +116,7 @@ RULES:
                 result = execute_agent_tool(call.name, call.args)
                 history.append(
                     types.Content(
-                        role="tool",
+                        role="user",
                         parts=[
                             types.Part.from_function_response(
                                 name=call.name,
@@ -127,7 +128,7 @@ RULES:
                 
             # Call Gemini again to get structured JSON response grounded in tool results
             final_response = client.models.generate_content(
-                model="gemini-3.6-flash",
+                model=os.environ.get("GEMINI_MODEL", "gemini-3.5-flash"),
                 contents=history,
                 config=types.GenerateContentConfig(
                     response_mime_type="application/json",
@@ -142,7 +143,7 @@ RULES:
         else:
             # No tool call was requested; ask Gemini to generate JSON response directly
             direct_response = client.models.generate_content(
-                model="gemini-3.6-flash",
+                model=os.environ.get("GEMINI_MODEL", "gemini-3.5-flash"),
                 contents=message,
                 config=types.GenerateContentConfig(
                     response_mime_type="application/json",

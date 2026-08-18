@@ -27,7 +27,7 @@ def make_tool_result(
         warning=warning
     ).model_dump()
 
-# Tool Definitions
+# Tool Definitions (No default values in signatures to avoid Gemini API errors)
 def get_weather(location: str) -> Dict[str, Any]:
     """
     Retrieves live weather forecast information for a specified location (district, city, or state).
@@ -40,8 +40,6 @@ def get_weather(location: str) -> Dict[str, Any]:
             warning="Location parameter is missing.",
             is_live=False
         )
-    # Simulate weather API check
-    # In a real environment, we'd make an HTTP request to OpenWeatherMap or IMD here.
     weather_data = {
         "location": location,
         "temperature": "32°C",
@@ -57,7 +55,7 @@ def get_weather(location: str) -> Dict[str, Any]:
     }
     return make_tool_result(success=True, data=weather_data, source=source, is_live=True)
 
-def get_market_price(product: str, location: str, market: Optional[str] = None) -> Dict[str, Any]:
+def get_market_price(product: str, location: str, market: str) -> Dict[str, Any]:
     """
     Retrieves current market wholesale or mandi prices for a product in a specified location.
     Use when the user asks for daily market price, mandi rates, or crop rates.
@@ -70,7 +68,6 @@ def get_market_price(product: str, location: str, market: Optional[str] = None) 
             is_live=False
         )
     
-    # Simulate market price API
     mandi_data = {
         "product": product,
         "location": location,
@@ -87,12 +84,11 @@ def get_market_price(product: str, location: str, market: Optional[str] = None) 
     }
     return make_tool_result(success=True, data=mandi_data, source=source, is_live=True)
 
-def search_government_service(query: str, location: Optional[str] = None) -> Dict[str, Any]:
+def search_government_service(query: str, location: str) -> Dict[str, Any]:
     """
     Searches official government schemes, eligibility, documents, or pension information based on query.
     Use when the user asks for government schemes, PM-Kisan, PM-SVANidhi, pension, job card, or UDID.
     """
-    # Load knowledge base schemes
     from app.services.scheme_service import KNOWLEDGE_BASE
     query_lower = query.lower()
     
@@ -103,7 +99,7 @@ def search_government_service(query: str, location: Optional[str] = None) -> Dic
             break
             
     if not matched and KNOWLEDGE_BASE:
-        matched = KNOWLEDGE_BASE[0] # Default fallback scheme
+        matched = KNOWLEDGE_BASE[0]
         
     if matched:
         data = {
@@ -128,7 +124,7 @@ def search_government_service(query: str, location: Optional[str] = None) -> Dic
         is_live=False
     )
 
-def search_agriculture_guidance(query: str, crop: Optional[str] = None, location: Optional[str] = None) -> Dict[str, Any]:
+def search_agriculture_guidance(query: str, crop: str, location: str) -> Dict[str, Any]:
     """
     Searches for expert agricultural advice, crop health, pest treatments, or irrigation recommendations.
     Use when the user asks about yellowing leaves, crop diseases, fertilizer types, or watering schedules.
@@ -148,7 +144,7 @@ def search_agriculture_guidance(query: str, crop: Optional[str] = None, location
     }
     return make_tool_result(success=True, data=guidance, source=source, is_live=False)
 
-def get_livelihood_guidance(query: str, user_type: Optional[str] = None) -> Dict[str, Any]:
+def get_livelihood_guidance(query: str, user_type: str) -> Dict[str, Any]:
     """
     Provides business advice, inventory recommendations, pricing strategies, or digital market access guidance.
     Use when the user asks about setting prices, repeat customers, inventory stock levels, or selling on Instagram/ONDC.
@@ -170,9 +166,9 @@ def get_livelihood_guidance(query: str, user_type: Optional[str] = None) -> Dict
 def calculate_economics(
     selling_price: float,
     cost: float,
-    labor: Optional[float] = 0.0,
-    transport: Optional[float] = 0.0,
-    packaging: Optional[float] = 0.0
+    labor: float,
+    transport: float,
+    packaging: float
 ) -> Dict[str, Any]:
     """
     Calculates profit margins, total costs, unit profit, and break-even metrics for a business or product.

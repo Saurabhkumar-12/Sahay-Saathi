@@ -204,7 +204,7 @@ RULES:
 """
     try:
         response = client.models.generate_content(
-            model="gemini-3.6-flash",
+            model=os.environ.get("GEMINI_MODEL", "gemini-3.5-flash"),
             contents=message,
             config=types.GenerateContentConfig(
                 response_mime_type="application/json",

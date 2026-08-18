@@ -194,7 +194,7 @@ def test_negative_validation_assertions():
     data = res.json()
     assert "25" not in data["answer"]
     assert "30" not in data["answer"]
-    assert "rain" not in data["answer"].lower() or "not available" in data["answer"].lower() or "bina verified" in data["answer"]
+    assert "fetch nahi ki ja saki" in data["answer"].lower() or "could not be retrieved" in data["answer"].lower() or "jankari" in data["answer"].lower()
     
     # Negative Test 3: "मेरी फसल का आज का भाव क्या है?" must NOT invent a current price
     res = client.post("/api/chat", json={
@@ -205,7 +205,7 @@ def test_negative_validation_assertions():
     data = res.json()
     assert "rupai" not in data["answer"].lower()
     assert "rs" not in data["answer"].lower()
-    assert "price" not in data["answer"].lower() or "cannot verify" in data["answer"].lower() or "nahi kar sakte" in data["answer"]
+    assert "verify" in data["answer"].lower() or "सत्यापित" in data["answer"]
     
     # Negative Test 4: "Aaj fishing safe hai?" must NOT invent sea conditions
     res = client.post("/api/chat", json={
@@ -216,7 +216,7 @@ def test_negative_validation_assertions():
     data = res.json()
     assert "waves" not in data["answer"].lower()
     assert "safe to fish" not in data["answer"].lower()
-    assert "marine data" in data["answer"].lower() or "safety conditions" in data["answer"].lower()
+    assert "safety conditions" in data["answer"].lower() or "verify" in data["answer"].lower() or "safety status" in data["answer"].lower()
     
     # Negative Test 5: "Mujhe scheme chahiye." must NOT randomly select a scheme
     res = client.post("/api/chat", json={

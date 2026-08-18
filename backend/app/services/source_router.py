@@ -98,9 +98,9 @@ def dispatch_domain_fallback(request: ChatRequest, intent_info: IntentRoutingInf
 
     # Weather (domain: weather_and_environment) - Negative test: Do NOT generate fake forecast
     if intent == "weather" or domain == "weather_and_environment":
-        answer = "I could not verify this information from a reliable official source. Live weather forecasting is currently not available without active weather API."
+        answer = "Current weather information could not be retrieved right now."
         if language in ["hi", "hinglish"]:
-            answer = "Mausam ki jankari live weather API ke bina verified nahi ki ja sakti. Kripya official sources check karein."
+            answer = "Mausam ki live jankari abhi fetch nahi ki ja saki."
         return ChatResponse(
             answer=answer,
             sources=[
@@ -212,8 +212,28 @@ def dispatch_domain_fallback(request: ChatRequest, intent_info: IntentRoutingInf
             missingInformation=missing_info
         )
 
-    # 4. Default fallthrough
-    answer = "I could not verify this information from a reliable official source. Please check with the relevant government department."
+    # 4. Default fallthrough based on domain
+    if domain == "government_public_services":
+        answer = "Latest official information could not be verified right now."
+        if language in ["hi", "hinglish"]:
+            answer = "Sarkari yojana ki jankari verify nahi ki ja saki. Kripya bad mein try karein."
+    elif domain == "agriculture_and_allied":
+        answer = "I couldn't retrieve additional agricultural information right now, but I can still provide general guidance based on the information you shared."
+        if language in ["hi", "hinglish"]:
+            answer = "Hum abhi agricultural information fetch nahi kar pa rahe hain, par general guidance de sakte hain."
+    elif domain == "weather_and_environment":
+        answer = "Current weather information could not be retrieved right now."
+        if language in ["hi", "hinglish"]:
+            answer = "Mausam ki live jankari abhi fetch nahi ki ja saki."
+    elif domain == "safety_and_emergency":
+        answer = "I couldn't verify current safety conditions right now. Please do not rely on an unverified AI response for immediate safety decisions."
+        if language in ["hi", "hinglish"]:
+            answer = "Suraksha sambandhi jankari verify nahi ki ja saki. Kripya immediate safety ke liye unverified AI par rely na karein."
+    else:
+        answer = "I couldn't retrieve additional information right now. I can still help with general guidance."
+        if language in ["hi", "hinglish"]:
+            answer = "Jankari abhi fetch nahi ki ja saki. Hum aam sahayata pradan kar sakte hain."
+
     return ChatResponse(
         answer=answer, 
         sources=[], 

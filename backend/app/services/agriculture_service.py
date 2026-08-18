@@ -124,22 +124,22 @@ def handle_agriculture_mock(
         # Cautious mock response to prevent hallucinating prices
         if language == "hi":
             answer = (
-                "हम वास्तविक समय (live) के बाजार भाव बिना पुष्टि के साझा नहीं कर सकते।\n"
-                "कृपया आज के सही थोक भाव जानने के लिए सरकार के आधिकारिक ई-नाम (e-NAM) पोर्टल पर जाएं या अपने नजदीकी मंडी बोर्ड (APMC) से संपर्क करें।"
+                "मैं अभी वर्तमान बाजार भाव (current market price) सत्यापित नहीं कर पा रहा हूँ।\n"
+                "आप अपनी मंडी/जिला बता दें, मैं संबंधित स्रोत की जांच करने की कोशिश कर सकता हूँ।"
             )
-            action_step = "आज का भाव जांचने के लिए आधिकारिक e-NAM पोर्टल पर जाएं।"
+            action_step = "अपनी मंडी/जिला साझा करें या e-NAM पोर्टल पर बाजार भाव की जांच करें।"
         elif language == "hinglish":
             answer = (
-                "Hum bina verification ke live market prices share nahi kar sakte.\n"
-                "Please wholesale rates verify karne ke liye government ke official e-NAM portal par check karein ya local APMC mandi visit karein."
+                "Main abhi current market price verify nahi kar pa raha hoon.\n"
+                "Aap apna mandi/district bata dein, main relevant source check karne ki koshish kar sakta hoon."
             )
-            action_step = "e-NAM official portal par rates check karein."
+            action_step = "Mandi/district share karein market rates check karne ke liye."
         else:
             answer = (
-                "We cannot provide unverified real-time market prices to avoid misinformation.\n"
-                "Please refer to the official e-NAM (National Agriculture Market) portal or contact your local APMC mandi office for accurate daily rates."
+                "I cannot verify the current market price right now.\n"
+                "Please share your mandi/district, and I can try to check the relevant source."
             )
-            action_step = "Check official e-NAM portal for today's market prices."
+            action_step = "Provide your mandi or district to search current rates."
             
         return ChatResponse(
             answer=answer,

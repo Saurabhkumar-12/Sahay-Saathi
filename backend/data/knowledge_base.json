@@ -1,0 +1,145 @@
+[
+  {
+    "id": "pm_kisan",
+    "name": "PM Kisan Samman Nidhi",
+    "description": "An initiative by the Government of India that provides up to ₹6,000 per year in three equal installments directly into the bank accounts of small and marginal farmers.",
+    "target_users": ["farmer"],
+    "eligibility": "Small and marginal landholder farmers families who own cultivable land holding up to 2 hectares in their names. Institutional landholders, taxpayers, and high-income families are not eligible.",
+    "required_documents": [
+      "Aadhar Card",
+      "Landholding Documents (Khata/Khesra/Jamabandi)",
+      "Bank Account Details",
+      "Mobile Number linked with Aadhaar"
+    ],
+    "application_steps": [
+      "Visit the official PM-Kisan Portal (https://pmkisan.gov.in/).",
+      "Click on 'New Farmer Registration' under the Farmers Corner section.",
+      "Enter your Aadhaar number and select state, rural/urban area.",
+      "Fill in personal and land details, upload the required documents, and submit."
+    ],
+    "official_source": "https://pmkisan.gov.in/",
+    "last_verified": "2026-08-01"
+  },
+  {
+    "id": "pm_svanidhi",
+    "name": "PM Street Vendor's AtmaNirbhar Nidhi (PM SVANidhi)",
+    "description": "A special micro-credit scheme providing street vendors with collateral-free working capital loans of up to ₹10,000 for the first tenure, with subsequent loans of ₹20,000 and ₹50,000 upon timely repayment.",
+    "target_users": ["street vendor"],
+    "eligibility": "Urban street vendors/hawkers carrying out vending on or before March 24, 2020. Vendors must possess a Certificate of Vending (CoV) or Letter of Recommendation (LoR) from the local municipality/urban local body.",
+    "required_documents": [
+      "Aadhaar Card",
+      "Voter Identity Card",
+      "Certificate of Vending (CoV) or Letter of Recommendation (LoR)",
+      "Bank Account details",
+      "Mobile number linked with Aadhaar"
+    ],
+    "application_steps": [
+      "Visit the PM SVANidhi portal (https://pmsvanidhi.mohua.gov.in/).",
+      "Click on 'Apply Loan' (10k, 20k, or 50k based on eligibility).",
+      "Enter your Mobile Number and Aadhaar number to verify via OTP.",
+      "Fill in the application details and select your lender bank/Lending Institution."
+    ],
+    "official_source": "https://pmsvanidhi.mohua.gov.in/",
+    "last_verified": "2026-08-01"
+  },
+  {
+    "id": "pm_vishwakarma",
+    "name": "PM Vishwakarma Scheme",
+    "description": "Provides end-to-end support to artisans and craftspeople including recognition (Vishwakarma Certificate & ID Card), skill upgrading, toolkit incentive of ₹15,000, and collateral-free credit support up to ₹3,000,000 at concessional interest rate of 5%.",
+    "target_users": ["artisan"],
+    "eligibility": "An artisan or craftsperson working with hands and tools in one of the 18 family-based traditional trades (e.g., carpenter, blacksmith, potter, sculptor, cobbler, tailor). Minimum age of 18 years. Benefit restricted to one member per family.",
+    "required_documents": [
+      "Aadhaar Card",
+      "Mobile number linked with Aadhaar",
+      "Bank Account details",
+      "Ration Card (mandatory for registration)"
+    ],
+    "application_steps": [
+      "Go to the Common Services Centre (CSC) for registration or visit https://pmvishwakarma.gov.in/.",
+      "Artisan verification will be done via biometric Aadhaar authentication.",
+      "Apply for the Vishwakarma Certificate and loan assistance under the guidance of the CSC agent."
+    ],
+    "official_source": "https://pmvishwakarma.gov.in/",
+    "last_verified": "2026-08-01"
+  },
+  {
+    "id": "pmmsy",
+    "name": "Pradhan Mantri Matsya Sampada Yojana (PMMSY)",
+    "description": "A scheme to bring about a Blue Revolution through sustainable development of the fisheries sector in India. Offers financial support for acquiring boats, establishing aquaculture farms, fish feed mills, and post-harvest infrastructure.",
+    "target_users": ["fisherman"],
+    "eligibility": "Fishers, Fish Farmers, Fish Workers, Fish Vendors, Fisheries Co-operatives, and Self Help Groups (SHGs) involved in fisheries activities.",
+    "required_documents": [
+      "Aadhaar Card",
+      "Fishermen Identity Card / Registration certificate",
+      "Land/Pond ownership documents (if applying for aquaculture)",
+      "Bank Passbook details"
+    ],
+    "application_steps": [
+      "Contact the local District Fisheries Office or State Fisheries Department.",
+      "Submit a detailed project report (DPR) or standard application form for the specific fisheries asset/incentive.",
+      "Details and forms can also be downloaded from the PMMSY official website (https://pmmsy.dof.gov.in/)."
+    ],
+    "official_source": "https://pmmsy.dof.gov.in/",
+    "last_verified": "2026-08-01"
+  },
+  {
+    "id": "mgnrega",
+    "name": "Mahatma Gandhi National Rural Employment Guarantee Act (MGNREGA)",
+    "description": "Guarantees at least 100 days of wage employment in a financial year to every rural household whose adult members volunteer to do unskilled manual work.",
+    "target_users": ["rural worker"],
+    "eligibility": "Must be a citizen of India residing in rural areas. Must be an adult (above 18 years of age) willing to do unskilled manual labour.",
+    "required_documents": [
+      "Aadhaar Card",
+      "Ration Card",
+      "Passport size photograph",
+      "Bank Account Details"
+    ],
+    "application_steps": [
+      "Apply at the local Gram Panchayat office in your village using a simple application form or plain paper request.",
+      "The Gram Panchayat will verify the details and issue a Job Card within 15 days of application.",
+      "After getting the Job Card, submit a written application for work, specifying the dates and duration. Employment will be provided within 15 days of demand."
+    ],
+    "official_source": "https://nrega.nic.in/",
+    "last_verified": "2026-08-01"
+  },
+  {
+    "id": "udid",
+    "name": "Unique Disability ID (UDID) Card & Benefits",
+    "description": "A single document of identification and verification of disabled personals that streamlines access to government schemes, pension benefits, travel concessions (railway/bus), and assistive aid distribution.",
+    "target_users": ["person with disability"],
+    "eligibility": "Any citizen of India with a disability percentage of 40% or more (as certified by a registered medical authority).",
+    "required_documents": [
+      "Aadhaar Card or Voter ID",
+      "Disability Certificate (if already issued by a hospital)",
+      "Recent passport-size photograph",
+      "Address proof"
+    ],
+    "application_steps": [
+      "Visit the official Swavlamban Card portal (https://www.swavlambancard.gov.in/).",
+      "Click on 'Apply for Disability Certificate & UDID Card'.",
+      "Fill in the personal details, address, disability details, and employment information.",
+      "Upload photo, signature, and identity/address proof, then submit. Visit the designated government hospital for medical assessment if scheduled."
+    ],
+    "official_source": "https://www.swavlambancard.gov.in/",
+    "last_verified": "2026-08-01"
+  },
+  {
+    "id": "pmsby",
+    "name": "Pradhan Mantri Suraksha Bima Yojana (PMSBY)",
+    "description": "An accident insurance scheme offering ₹2 lakh coverage for accidental death or full disability, and ₹1 lakh coverage for partial disability, at a highly subsidized premium of just ₹20 per year.",
+    "target_users": ["citizen"],
+    "eligibility": "All individual bank/post office account holders in the age group of 18 to 70 years who give their consent to join and enable auto-debit of premium.",
+    "required_documents": [
+      "Aadhaar Card",
+      "Bank Account details with auto-debit consent",
+      "Nominee Details"
+    ],
+    "application_steps": [
+      "Contact the bank or post office where you hold your savings account.",
+      "Submit the PMSBY application and auto-debit consent form.",
+      "Alternatively, register online through the net-banking app/portal of your bank."
+    ],
+    "official_source": "https://www.jansuraksha.gov.in/",
+    "last_verified": "2026-08-01"
+  }
+]

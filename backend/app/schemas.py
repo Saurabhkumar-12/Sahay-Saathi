@@ -75,5 +75,7 @@ class ChatResponse(BaseModel):
     intent: str = Field(..., description="The intent classified for this query.")
     domain: str = Field(..., description="The domain classified for this query.")
     actionable_next_step: Optional[str] = Field(..., description="Clear, user-friendly next action instructions. Can be null if clarification is needed.")
-    missingInformation: List[str] = Field(default=[], description="List of missing diagnostic or context information.")
+    needs_clarification: bool = Field(default=False, description="True if query is too ambiguous and needs clarification.")
+    missing_information: List[str] = Field(default=[], description="List of missing diagnostic or context information.")
+    data_status: str = Field(default="general", description="Status of the retrieved data. Must be one of: live|verified|cached|general|estimated|unavailable")
 

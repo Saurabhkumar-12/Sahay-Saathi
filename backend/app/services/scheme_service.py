@@ -118,7 +118,9 @@ def handle_scheme_mock(
                 intent=intent,
                 domain="government_public_services",
                 actionable_next_step=action_step,
-                missingInformation=[]
+                needs_clarification=False,
+                missing_information=[],
+                data_status="verified"
             )
 
     # 4. government_service (e.g. pension)
@@ -137,7 +139,9 @@ def handle_scheme_mock(
             intent=intent,
             domain="government_public_services",
             actionable_next_step="Visit your nearest local government administration office.",
-            missingInformation=[]
+            needs_clarification=False,
+            missing_information=[],
+            data_status="verified"
         )
 
     # Default fallback government scheme query (PROBLEM-FIRST verification: "Mujhe scheme chahiye" vague checking)
@@ -153,5 +157,7 @@ def handle_scheme_mock(
         intent=intent,
         domain="government_public_services",
         actionable_next_step="Verify details with local authorities.",
-        missingInformation=[]
+        needs_clarification=False,
+        missing_information=[],
+        data_status="verified"
     )

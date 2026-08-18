@@ -51,6 +51,9 @@ def assert_chat_intent(
         assert data["domain"] == expected_domain
     assert "answer" in data
     assert "warning" in data
+    assert "data_status" in data
+    assert "needs_clarification" in data
+    assert isinstance(data["missing_information"], list)
     if expected_action_substring:
         assert expected_action_substring.lower() in data["actionable_next_step"].lower()
     return data

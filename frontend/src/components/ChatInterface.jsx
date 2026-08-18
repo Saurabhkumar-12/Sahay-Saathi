@@ -27,9 +27,13 @@ const getDomainBadge = (intent, domain) => {
   if (normIntent === 'accessibility') return { emoji: '♿', label: 'Accessibility Aid' };
   if (normIntent === 'safety') return { emoji: '🛡️', label: 'Safety Guidelines' };
   if (normIntent === 'emergency_help') return { emoji: '🚨', label: 'Emergency Help' };
-  if (normDomain === 'government') return { emoji: '🏛️', label: 'Government Service' };
-  if (normDomain === 'agriculture') return { emoji: '🌾', label: 'Agricultural Advice' };
-  if (normDomain === 'livelihood') return { emoji: '💼', label: 'Livelihood Support' };
+  if (normDomain === 'government_public_services') return { emoji: '🏛️', label: 'Government Service' };
+  if (normDomain === 'agriculture_and_allied') return { emoji: '🌾', label: 'Agricultural Advice' };
+  if (normDomain === 'livelihood_and_employment') return { emoji: '💼', label: 'Livelihood Support' };
+  if (normDomain === 'business_and_market') return { emoji: '💼', label: 'Business Assistance' };
+  if (normDomain === 'weather_and_environment') return { emoji: '🌤️', label: 'Weather Information' };
+  if (normDomain === 'safety_and_emergency') return { emoji: '🛡️', label: 'Safety Assistance' };
+  if (normDomain === 'education_and_skills') return { emoji: '🎓', label: 'Skill Development' };
   
   return { emoji: '👤', label: 'General Assistance' };
 };
@@ -170,7 +174,10 @@ export default function ChatInterface({ userType, language, onBack }) {
         warning: data.warning,
         intent: data.intent,
         domain: data.domain,
-        actionable_next_step: data.actionable_next_step
+        actionable_next_step: data.actionable_next_step,
+        needs_clarification: data.needs_clarification,
+        missing_information: data.missing_information,
+        data_status: data.data_status
       }]);
     } catch (err) {
       console.error(err);
@@ -352,6 +359,20 @@ export default function ChatInterface({ userType, language, onBack }) {
                         </div>
                       )}
 
+                      {/* Missing Information / Required Fields */}
+                      {m.sender === 'assistant' && m.missing_information && m.missing_information.length > 0 && (
+                        <div className="mt-2.5 bg-blue-50 border-l-4 border-blue-500 p-2.5 rounded text-xs text-blue-800 flex flex-col gap-1 shadow-sm">
+                          <div className="font-bold flex items-center gap-1">
+                            <span>🔍</span> Required Details for Better Analysis:
+                          </div>
+                          <ul className="list-disc pl-4 space-y-0.5">
+                            {m.missing_information.map((item, iIdx) => (
+                              <li key={iIdx}>{item}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+
                       {/* Debug Details */}
                       {m.sender === 'assistant' && (m.intent || m.domain) && (
                         <details className="mt-2.5 text-[10px] text-slate-400 border-t border-slate-100 pt-1.5 cursor-pointer">
@@ -359,6 +380,8 @@ export default function ChatInterface({ userType, language, onBack }) {
                           <div className="mt-1 font-mono bg-slate-50 p-2 rounded border border-slate-200 text-slate-500 space-y-0.5">
                             <div>Intent: {m.intent}</div>
                             <div>Domain: {m.domain}</div>
+                            <div>Data Status: {m.data_status || 'general'}</div>
+                            <div>Needs Clarification: {m.needs_clarification ? 'Yes' : 'No'}</div>
                           </div>
                         </details>
                       )}

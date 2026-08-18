@@ -51,7 +51,9 @@ def dispatch_domain_fallback(request: ChatRequest, intent_info: IntentRoutingInf
             intent=intent,
             domain=domain,
             actionable_next_step="Aapna user type select karein.",
-            missingInformation=[]
+            needs_clarification=True,
+            missing_information=[],
+            data_status="general"
         )
 
     # 2. Domain Delegation
@@ -116,7 +118,9 @@ def dispatch_domain_fallback(request: ChatRequest, intent_info: IntentRoutingInf
             intent=intent,
             domain="weather_and_environment",
             actionable_next_step="Check IMD official website for weather alerts.",
-            missingInformation=["location"]
+            needs_clarification=False,
+            missing_information=["location"],
+            data_status="unavailable"
         )
 
     # Safety (domain: safety_and_emergency) - Negative test: Do NOT invent sea safety conditions
@@ -139,7 +143,9 @@ def dispatch_domain_fallback(request: ChatRequest, intent_info: IntentRoutingInf
             intent=intent,
             domain="safety_and_emergency",
             actionable_next_step=action_steps_map.get("safety"),
-            missingInformation=[]
+            needs_clarification=False,
+            missing_information=[],
+            data_status="unavailable"
         )
 
     # Accessibility (domain: accessibility)
@@ -162,7 +168,9 @@ def dispatch_domain_fallback(request: ChatRequest, intent_info: IntentRoutingInf
             intent=intent,
             domain="accessibility",
             actionable_next_step="Apply for accessible utility devices on Swavlamban Portal.",
-            missingInformation=[]
+            needs_clarification=False,
+            missing_information=[],
+            data_status="verified"
         )
 
     # Education & Skills
@@ -185,7 +193,9 @@ def dispatch_domain_fallback(request: ChatRequest, intent_info: IntentRoutingInf
             intent=intent,
             domain="education_and_skills",
             actionable_next_step=action_steps_map.get("skill_development"),
-            missingInformation=[]
+            needs_clarification=False,
+            missing_information=[],
+            data_status="verified"
         )
 
     # General Livelihood / Business
@@ -209,7 +219,9 @@ def dispatch_domain_fallback(request: ChatRequest, intent_info: IntentRoutingInf
             intent=intent,
             domain=domain,
             actionable_next_step=action_steps_map.get(intent, "Verify details with local authorities."),
-            missingInformation=missing_info
+            needs_clarification=False,
+            missing_information=missing_info,
+            data_status="general"
         )
 
     # 4. Default fallthrough based on domain
@@ -242,5 +254,7 @@ def dispatch_domain_fallback(request: ChatRequest, intent_info: IntentRoutingInf
         intent=intent,
         domain=domain,
         actionable_next_step="Verify details with local authorities.",
-        missingInformation=[]
+        needs_clarification=False,
+        missing_information=[],
+        data_status="unavailable"
     )

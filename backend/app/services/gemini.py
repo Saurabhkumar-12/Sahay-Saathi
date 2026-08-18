@@ -9,6 +9,16 @@ from app.schemas import ChatRequest, ChatResponse, GenericSource, IntentRoutingI
 from app.services.router import route_intent
 from app.services.scheme_service import match_schemes
 from app.services.source_router import detect_language
+from app.services.tool_router import (
+    get_weather,
+    get_market_price,
+    search_government_service,
+    search_agriculture_guidance,
+    get_livelihood_guidance,
+    calculate_economics,
+    search_relevant_information,
+    execute_agent_tool
+)
 
 def get_gemini_client():
     api_key = os.environ.get("GEMINI_API_KEY")
@@ -21,7 +31,7 @@ async def generate_assistance(request: ChatRequest) -> ChatResponse:
     message = request.message.strip()
     language = detect_language(message, request.language.strip().lower())
     
-    # 1. Route Intent & Domain
+    # 1. Route Intent & Domain for routing metadata
     routing_info = await route_intent(message, user_type)
     
     # 2. Setup match schemes if intent is scheme/eligibility related
@@ -43,7 +53,7 @@ async def generate_assistance(request: ChatRequest) -> ChatResponse:
         schemes_context = "No specific scheme matches found."
         
     system_instruction = f"""You are Sahay Saathi, an empathetic AI-powered citizen assistance platform for underserved communities in India.
-Your goal is to understand the user's problem first, then provide the most relevant assistance based on their context, intent, and domain.
+Your goal is to understand the user's problem first, then select the appropriate tool or reasoning mechanism to help them.
 
 CONTEXT:
 User Type: {user_type}
@@ -55,42 +65,95 @@ SCHEME REFERENCE DATA:
 {schemes_context}
 
 RULES:
-1. Intent & Domain Awareness: The intent is "{routing_info.intent}" and domain is "{routing_info.domain}". Ground your answer in this intent/domain. Do not recommend government schemes unless the intent is scheme-related.
-2. Problem-First Approach:
-   - For non-government queries (e.g. crop health, irrigation, weather, safety, livelihood, pricing, stock decisions): Provide helpful domain-specific guidance. Do not force the response to mention government schemes.
-   - For Crop Health queries (e.g. yellow leaves):
-     * Explain that symptoms can have multiple possible causes.
-     * Cautious Phrasing: Use words like "Possible causes include..." instead of "Your crop has...". Do not make a definitive diagnosis.
-     * Ask missing questions: crop age, location, leaf location (lower or upper), irrigation status, and recent fertilizers.
-     * Offer safe immediate precautions (e.g. ensure drainage, avoid applying excess fertilizers until confirmed).
-     * Request photos/details.
-     * Recommend consulting a local agricultural expert or Krishi Vigyan Kendra (KVK).
-     * Do not prescribe specific chemical dosages unless supported by official documents.
-3. Verification & Hallucination:
-   - For government queries, rely on official government sources.
-   - For agricultural/livelihood queries, use reliable domain sources.
-   - If the query requires live data (weather forecasts, real-time crop/market prices, live sea safety conditions) and needsLiveData=true, you must state that you cannot verify this live information without real-time connection. Do not fabricate forecast, prices, or conditions.
-4. Ambiguity: If needsClarification is true, ask a clarifying question about their specific profession or situation.
-5. Provide response in the requested language (en, hi, or hinglish).
-6. Output JSON matching the schema (with fields: answer, sources, warning, language, intent, domain, actionable_next_step, missingInformation).
+1. Adaptive Problem-First Routing: Analyze the user's real problem. If you need external data (weather forecasts, real-time market prices, safety advisories, or official government criteria), select the appropriate tool.
+2. Factual Grounding:
+   - Use the tool result to form your answer.
+   - Do not invent weather, prices, sea safety states, or official criteria that are absent from tool responses.
+   - Do not force government schemes on non-government queries.
+3. Crop Health and Agricultural Cautious Phrasing:
+   - For crop health problems (e.g. yellow leaves), explain that symptoms can have multiple causes.
+   - Use cautious phrasing ("Possible causes include...", not "Your crop has...").
+   - Ask important diagnostic questions (crop age, location, leaf location, irrigation, recent fertilizer) to help them check.
+   - Recommend KVK/agricultural extension experts for serious issues.
+4. If live data could not be verified by the weather/market/safety tools, explicitly state that in the answer.
+5. Translate or summarize the tool results into the user's target language/style (Hindi, English, or Hinglish) to maintain language consistency.
+6. Make sure the final response is formatted in JSON matching the ChatResponse schema.
 """
 
+    tools_list = [
+        get_weather,
+        get_market_price,
+        search_government_service,
+        search_agriculture_guidance,
+        get_livelihood_guidance,
+        calculate_economics,
+        search_relevant_information
+    ]
+
     try:
-        # Call Gemini using Structured JSON output matching ChatResponse schema
+        # Call model to see if it wants to invoke a tool
         response = client.models.generate_content(
             model="gemini-3.6-flash",
             contents=message,
             config=types.GenerateContentConfig(
-                response_mime_type="application/json",
-                response_schema=ChatResponse,
                 system_instruction=system_instruction,
+                tools=tools_list,
                 temperature=0.1
             )
         )
-        # Parse the structured JSON response
-        response_data = json.loads(response.text)
-        return ChatResponse(**response_data)
         
+        # If the model wants to call a tool:
+        if response.function_calls:
+            # Build conversation history
+            history = [
+                types.Content(role="user", parts=[types.Part.from_text(text=message)]),
+                response.candidates[0].content
+            ]
+            
+            # Execute all requested functions
+            for call in response.function_calls:
+                result = execute_agent_tool(call.name, call.args)
+                history.append(
+                    types.Content(
+                        role="tool",
+                        parts=[
+                            types.Part.from_function_response(
+                                name=call.name,
+                                response=result
+                            )
+                        ]
+                    )
+                )
+                
+            # Call Gemini again to get structured JSON response grounded in tool results
+            final_response = client.models.generate_content(
+                model="gemini-3.6-flash",
+                contents=history,
+                config=types.GenerateContentConfig(
+                    response_mime_type="application/json",
+                    response_schema=ChatResponse,
+                    system_instruction=system_instruction,
+                    temperature=0.1
+                )
+            )
+            response_data = json.loads(final_response.text)
+            return ChatResponse(**response_data)
+            
+        else:
+            # No tool call was requested; ask Gemini to generate JSON response directly
+            direct_response = client.models.generate_content(
+                model="gemini-3.6-flash",
+                contents=message,
+                config=types.GenerateContentConfig(
+                    response_mime_type="application/json",
+                    response_schema=ChatResponse,
+                    system_instruction=system_instruction,
+                    temperature=0.1
+                )
+            )
+            response_data = json.loads(direct_response.text)
+            return ChatResponse(**response_data)
+            
     except APIError as e:
         print(f"Gemini API Error: {e}")
         return handle_mock_fallback(request, matched, routing_info)

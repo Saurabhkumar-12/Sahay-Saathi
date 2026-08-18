@@ -78,7 +78,9 @@ def handle_agriculture_mock(
             intent=intent,
             domain="agriculture_and_allied",
             actionable_next_step=action_step,
-            missingInformation=["crop age", "location", "leaf position (upper/lower)", "irrigation condition", "recent fertilizer application"]
+            needs_clarification=False,
+            missing_information=["crop age", "location", "leaf position (upper/lower)", "irrigation condition", "recent fertilizer application"],
+            data_status="general"
         )
         
     # 2. irrigation intent mock
@@ -116,7 +118,9 @@ def handle_agriculture_mock(
             intent=intent,
             domain="agriculture_and_allied",
             actionable_next_step=action_step,
-            missingInformation=[]
+            needs_clarification=False,
+            missing_information=[],
+            data_status="general"
         )
         
     # 3. market_price intent mock
@@ -149,7 +153,9 @@ def handle_agriculture_mock(
             intent=intent,
             domain="agriculture_and_allied",
             actionable_next_step=action_step,
-            missingInformation=[]
+            needs_clarification=False,
+            missing_information=[],
+            data_status="unavailable"
         )
         
     # Fallback to general agriculture
@@ -171,5 +177,7 @@ def handle_agriculture_mock(
         intent=intent,
         domain="agriculture_and_allied",
         actionable_next_step=action_step,
-        missingInformation=[]
+        needs_clarification=False,
+        missing_information=[],
+        data_status="general"
     )

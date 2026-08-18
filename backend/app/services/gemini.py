@@ -5,9 +5,10 @@ from typing import List, Dict, Any, Optional
 from google import genai
 from google.genai import types
 from google.genai.errors import APIError
-from app.schemas import ChatRequest, ChatResponse, SchemeSource, IntentRoutingInfo
+from app.schemas import ChatRequest, ChatResponse, GenericSource, IntentRoutingInfo
 from app.services.router import route_intent
 from app.services.scheme_service import match_schemes
+from app.services.source_router import detect_language
 
 def get_gemini_client():
     api_key = os.environ.get("GEMINI_API_KEY")
@@ -18,7 +19,7 @@ def get_gemini_client():
 async def generate_assistance(request: ChatRequest) -> ChatResponse:
     user_type = request.userType.strip().lower()
     message = request.message.strip()
-    language = request.language.strip().lower()
+    language = detect_language(message, request.language.strip().lower())
     
     # 1. Route Intent & Domain
     routing_info = await route_intent(message, user_type)
@@ -71,7 +72,7 @@ RULES:
    - If the query requires live data (weather forecasts, real-time crop/market prices, live sea safety conditions) and needsLiveData=true, you must state that you cannot verify this live information without real-time connection. Do not fabricate forecast, prices, or conditions.
 4. Ambiguity: If needsClarification is true, ask a clarifying question about their specific profession or situation.
 5. Provide response in the requested language (en, hi, or hinglish).
-6. Output JSON matching the schema (with fields: answer, sources, warning, language, intent, domain, actionable_next_step).
+6. Output JSON matching the schema (with fields: answer, sources, warning, language, intent, domain, actionable_next_step, missingInformation).
 """
 
     try:

@@ -56,102 +56,102 @@ def assert_chat_intent(
     return data
 
 def test_intent_routing_rules():
-    # 1. Crop: "मेरी गेहूं की फसल में पत्ते पीले हो रहे हैं।" -> crop_health (agriculture)
+    # 1. Crop: "मेरी गेहूं की फसल में पत्ते पीले हो रहे हैं।" -> crop_health (agriculture_and_allied)
     assert_chat_intent(
         "मेरी गेहूं की फसल में पत्ते पीले हो रहे हैं।", 
         "farmer", 
         "crop_health", 
-        "agriculture", 
+        "agriculture_and_allied", 
         "KVK"
     )
     
-    # 2. Crop variation: "गेहूं के पत्ते पीले हो गए हैं" -> crop_health (agriculture)
+    # 2. Crop variation: "गेहूं के पत्ते पीले हो गए हैं" -> crop_health (agriculture_and_allied)
     assert_chat_intent(
         "गेहूं के पत्ते पीले हो गए हैं", 
         "farmer", 
         "crop_health", 
-        "agriculture", 
+        "agriculture_and_allied", 
         "KVK"
     )
     
-    # 3. Hinglish crop: "meri wheat crop yellow ho rahi hai" -> crop_health (agriculture)
+    # 3. Hinglish crop: "meri wheat crop yellow ho rahi hai" -> crop_health (agriculture_and_allied)
     assert_chat_intent(
         "meri wheat crop yellow ho rahi hai", 
         "farmer", 
         "crop_health", 
-        "agriculture", 
+        "agriculture_and_allied", 
         "KVK"
     )
     
-    # 4. Irrigation: "मेरे खेत में पानी की कमी है।" -> irrigation (agriculture)
+    # 4. Irrigation: "मेरे खेत में पानी की कमी है।" -> irrigation (agriculture_and_allied)
     assert_chat_intent(
         "मेरे खेत में पानी की कमी है।", 
         "farmer", 
         "irrigation", 
-        "agriculture", 
+        "agriculture_and_allied", 
         "irrigation"
     )
     
-    # 5. Weather: "कल बारिश होगी?" -> weather (weather)
+    # 5. Weather: "कल बारिश होगी?" -> weather (weather_and_environment)
     assert_chat_intent(
         "कल बारिश होगी?", 
         "farmer", 
         "weather", 
-        "weather", 
+        "weather_and_environment", 
         "imd"
     )
     
-    # 6. Market: "मेरी फसल का आज का भाव क्या है?" -> market_price (agriculture)
+    # 6. Market: "मेरी फसल का आज का भाव क्या है?" -> market_price (agriculture_and_allied)
     assert_chat_intent(
         "मेरी फसल का आज का भाव क्या है?", 
         "farmer", 
         "market_price", 
-        "agriculture", 
+        "agriculture_and_allied", 
         "e-nam"
     )
     
-    # 7. Government: "PM Kisan ke liye main eligible hoon?" -> eligibility (government)
+    # 7. Government: "PM Kisan ke liye main eligible hoon?" -> eligibility (government_public_services)
     assert_chat_intent(
         "PM Kisan ke liye main eligible hoon?", 
         "farmer", 
         "eligibility", 
-        "government", 
+        "government_public_services", 
         "documentation"
     )
     
-    # 8. Vendor: "Mere paas 2000 rupaye hain, kitna stock rakhun?" -> inventory (livelihood)
+    # 8. Vendor: "Mere paas 2000 rupaye hain, kitna stock rakhun?" -> inventory (business_and_market)
     assert_chat_intent(
         "Mere paas 2000 rupaye hain, kitna stock rakhun?", 
         "street vendor", 
         "inventory", 
-        "livelihood", 
+        "business_and_market", 
         "stock"
     )
     
-    # 9. Artisan: "Mere handmade product ka price kya hona chahiye?" -> pricing (livelihood)
+    # 9. Artisan: "Mere handmade product ka price kya hona chahiye?" -> pricing (business_and_market)
     assert_chat_intent(
         "Mere handmade product ka price kya hona chahiye?", 
         "artisan", 
         "pricing", 
-        "livelihood", 
+        "business_and_market", 
         "market"
     )
     
-    # 10. Fisherman: "Aaj fishing ke liye jaana safe hai?" -> safety (safety)
+    # 10. Fisherman: "Aaj fishing ke liye jaana safe hai?" -> safety (safety_and_emergency)
     assert_chat_intent(
         "Aaj fishing ke liye jaana safe hai?", 
         "fisherman", 
         "safety", 
-        "safety", 
+        "safety_and_emergency", 
         "gps"
     )
     
-    # 11. Rural worker: "Mujhe skill training chahiye." -> skill_development (livelihood)
+    # 11. Rural worker: "Mujhe skill training chahiye." -> skill_development (education_and_skills)
     assert_chat_intent(
         "Mujhe skill training chahiye.", 
         "rural worker", 
         "skill_development", 
-        "livelihood", 
+        "education_and_skills", 
         "skill india"
     )
     
@@ -164,12 +164,12 @@ def test_intent_routing_rules():
         "swavlamban"
     )
     
-    # 13. Ambiguous: "Mujhe help chahiye." -> unknown (general_information) with needsClarification
+    # 13. Ambiguous: "Mujhe help chahiye." -> unknown (general) with needsClarification
     assert_chat_intent(
         "Mujhe help chahiye.", 
         "other", 
         "unknown", 
-        "general_information", 
+        "general", 
         "select"
     )
 

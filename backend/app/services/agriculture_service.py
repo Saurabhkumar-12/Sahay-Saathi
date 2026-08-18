@@ -1,5 +1,5 @@
 from typing import Dict, Any, List
-from app.schemas import ChatResponse, SchemeSource
+from app.schemas import ChatResponse, GenericSource
 
 def handle_agriculture_mock(
     message: str, 
@@ -30,7 +30,7 @@ def handle_agriculture_mock(
                 "5. हाल ही में कौन सी खाद/उर्वरक डाली गई है?\n\n"
                 "यदि समस्या गंभीर है, तो कृपया अपने नजदीकी कृषि विज्ञान केंद्र (KVK) या स्थानीय कृषि विस्तार अधिकारी से संपर्क करें।"
             )
-            action_step = "फसल की आयु, स्थान और पत्तों का विवरण साझा करें या स्थानीय कृषि अधिकारी से परामर्श लें।"
+            action_step = "फसल की आयु, स्थान और पत्तों का विवरण साझा करें या स्थानीय KVK/कृषि अधिकारी से परामर्श लें।"
         elif language == "hinglish":
             answer = (
                 "Wheat crop ke leaves ka yellow hona multiple factors ki wajah se ho sakta hai.\n"
@@ -76,8 +76,9 @@ def handle_agriculture_mock(
             warning=warning_str,
             language=language,
             intent=intent,
-            domain="agriculture",
-            actionable_next_step=action_step
+            domain="agriculture_and_allied",
+            actionable_next_step=action_step,
+            missingInformation=["crop age", "location", "leaf position (upper/lower)", "irrigation condition", "recent fertilizer application"]
         )
         
     # 2. irrigation intent mock
@@ -89,7 +90,7 @@ def handle_agriculture_mock(
                 "- स्थानीय सिंचाई विभाग या ब्लॉक अधिकारी से सरकारी पंपसेट या बोरवेल योजनाओं के बारे में संपर्क करें।\n"
                 "- मृदा नमी (soil moisture) बनाए रखने के लिए गीली घास (mulching) का उपयोग करें।"
             )
-            action_step = "स्थानीय ब्लॉक कृषि या सिंचाई विभाग कार्यालय से संपर्क करें।"
+            action_step = "स्थानीय ब्लॉक कृषि या सिंचाई विभाग (irrigation office) कार्यालय से संपर्क करें।"
         elif language == "hinglish":
             answer = (
                 "Aapke khet mein water shortage door karne ke liye standard tips:\n"
@@ -113,8 +114,9 @@ def handle_agriculture_mock(
             warning=warning_str,
             language=language,
             intent=intent,
-            domain="agriculture",
-            actionable_next_step=action_step
+            domain="agriculture_and_allied",
+            actionable_next_step=action_step,
+            missingInformation=[]
         )
         
     # 3. market_price intent mock
@@ -145,8 +147,9 @@ def handle_agriculture_mock(
             warning=warning_str,
             language=language,
             intent=intent,
-            domain="agriculture",
-            actionable_next_step=action_step
+            domain="agriculture_and_allied",
+            actionable_next_step=action_step,
+            missingInformation=[]
         )
         
     # Fallback to general agriculture
@@ -166,6 +169,7 @@ def handle_agriculture_mock(
         warning=warning_str,
         language=language,
         intent=intent,
-        domain="agriculture",
-        actionable_next_step=action_step
+        domain="agriculture_and_allied",
+        actionable_next_step=action_step,
+        missingInformation=[]
     )

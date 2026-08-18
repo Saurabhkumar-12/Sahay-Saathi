@@ -61,17 +61,19 @@ class IntentRoutingInfo(BaseModel):
     needsLocation: bool = Field(..., description="True if location access is required for live data.")
     needsLiveData: bool = Field(..., description="True if query requires real-time/live data.")
 
-class SchemeSource(BaseModel):
-    name: str = Field(..., description="Official scheme name.")
-    url: str = Field(..., description="Official website URL.")
-    last_verified: Optional[str] = Field(..., description="Last date verified. Can be null if unknown.")
+class GenericSource(BaseModel):
+    title: str = Field(..., description="Title of the source.")
+    url: str = Field(..., description="URL of the source.")
+    source_type: str = Field(..., description="Type of source (e.g. government, agriculture, weather, market, safety, education, other).")
+    organization: Optional[str] = Field(..., description="Organization hosting the source. Can be null.")
 
 class ChatResponse(BaseModel):
     answer: str = Field(..., description="AI generated grounded response.")
-    sources: List[SchemeSource] = Field(..., description="List of source schemes used.")
+    sources: List[GenericSource] = Field(..., description="List of generic sources used.")
     warning: str = Field(..., description="Safety or verification warning message.")
     language: str = Field(..., description="Response language indicator.")
     intent: str = Field(..., description="The intent classified for this query.")
     domain: str = Field(..., description="The domain classified for this query.")
     actionable_next_step: Optional[str] = Field(..., description="Clear, user-friendly next action instructions. Can be null if clarification is needed.")
+    missingInformation: List[str] = Field(default=[], description="List of missing diagnostic or context information.")
 

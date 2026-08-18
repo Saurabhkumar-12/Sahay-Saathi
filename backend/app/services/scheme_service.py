@@ -1,7 +1,7 @@
 import json
 from pathlib import Path
 from typing import List, Dict, Any, Optional
-from app.schemas import ChatResponse, SchemeSource, ChatRequest, IntentRoutingInfo
+from app.schemas import ChatResponse, GenericSource, ChatRequest, IntentRoutingInfo
 
 DATA_DIR = Path(__file__).parent.parent.parent / "data"
 KNOWLEDGE_BASE_PATH = DATA_DIR / "knowledge_base.json"
@@ -63,7 +63,14 @@ def handle_scheme_mock(
     if intent in ["government_scheme", "eligibility", "documents", "application_process"]:
         if matched:
             scheme = matched[0]
-            sources = [SchemeSource(name=scheme["name"], url=scheme["official_source"], last_verified=scheme.get("last_verified"))]
+            sources = [
+                GenericSource(
+                    title=scheme["name"],
+                    url=scheme["official_source"],
+                    source_type="government",
+                    organization=scheme.get("organization") or "Government of India"
+                )
+            ]
             
             if intent == "eligibility":
                 if language == "hi":
@@ -109,8 +116,9 @@ def handle_scheme_mock(
                 warning=warning_str, 
                 language=language,
                 intent=intent,
-                domain="government",
-                actionable_next_step=action_step
+                domain="government_public_services",
+                actionable_next_step=action_step,
+                missingInformation=[]
             )
 
     # 4. government_service (e.g. pension)
@@ -127,8 +135,9 @@ def handle_scheme_mock(
             warning=warning_str,
             language=language,
             intent=intent,
-            domain="government",
-            actionable_next_step="Visit your nearest local government administration office."
+            domain="government_public_services",
+            actionable_next_step="Visit your nearest local government administration office.",
+            missingInformation=[]
         )
 
     # Default fallback government scheme query (PROBLEM-FIRST verification: "Mujhe scheme chahiye" vague checking)
@@ -142,6 +151,7 @@ def handle_scheme_mock(
         warning=warning_str,
         language=language,
         intent=intent,
-        domain="government",
-        actionable_next_step="Verify details with local authorities."
+        domain="government_public_services",
+        actionable_next_step="Verify details with local authorities.",
+        missingInformation=[]
     )

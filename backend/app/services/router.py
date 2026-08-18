@@ -6,28 +6,28 @@ from google.genai import types
 from app.schemas import IntentRoutingInfo
 
 INTENT_TO_DOMAIN = {
-    "government_scheme": "government",
-    "eligibility": "government",
-    "documents": "government",
-    "application_process": "government",
-    "government_service": "government",
-    "livelihood": "livelihood",
-    "agriculture": "agriculture",
-    "irrigation": "agriculture",
-    "crop_health": "agriculture",
-    "weather": "weather",
-    "market_price": "agriculture",
-    "market_access": "livelihood",
-    "inventory": "livelihood",
-    "pricing": "livelihood",
-    "financial_support": "livelihood",
-    "skill_development": "livelihood",
-    "safety": "safety",
+    "government_scheme": "government_public_services",
+    "eligibility": "government_public_services",
+    "documents": "government_public_services",
+    "application_process": "government_public_services",
+    "government_service": "government_public_services",
+    "livelihood": "livelihood_and_employment",
+    "agriculture": "agriculture_and_allied",
+    "irrigation": "agriculture_and_allied",
+    "crop_health": "agriculture_and_allied",
+    "weather": "weather_and_environment",
+    "market_price": "agriculture_and_allied",
+    "market_access": "business_and_market",
+    "inventory": "business_and_market",
+    "pricing": "business_and_market",
+    "financial_support": "financial_guidance",
+    "skill_development": "education_and_skills",
+    "safety": "safety_and_emergency",
     "accessibility": "accessibility",
-    "education": "education",
-    "emergency_help": "safety",
-    "general_information": "general_information",
-    "unknown": "general_information"
+    "education": "education_and_skills",
+    "emergency_help": "safety_and_emergency",
+    "general_information": "general",
+    "unknown": "general"
 }
 
 def get_gemini_client():
@@ -191,13 +191,13 @@ Analyze the user's message and categorize it into:
 government_scheme, eligibility, documents, application_process, government_service, livelihood, agriculture, irrigation, crop_health, weather, market_price, market_access, inventory, pricing, financial_support, skill_development, safety, accessibility, education, general_information, emergency_help, unknown
 
 2. One of these broader domains:
-government, agriculture, livelihood, weather, safety, accessibility, education, general_information
+government_public_services, agriculture_and_allied, livelihood_and_employment, business_and_market, weather_and_environment, safety_and_emergency, education_and_skills, health_and_wellbeing, accessibility, financial_guidance, information_and_navigation, general
 
 Context:
 User Type: {user_type}
 
 RULES:
-1. If the message is very vague (e.g. "Mujhe scheme chahiye", "give me a scheme"), set needsClarification to true, confidence to < 0.5, domain to general_information, and intent to unknown.
+1. If the message is very vague (e.g. "Mujhe scheme chahiye", "give me a scheme"), set needsClarification to true, confidence to < 0.5, domain to general, and intent to unknown.
 2. If the user is asking about live data (weather forecasts, real-time crop/market prices, live sea safety), set needsLiveData to true.
 3. If they ask about local specific weather, set needsLocation to true.
 4. Output structured JSON matching the schema (with fields: intent, domain, confidence, needsClarification, needsLocation, needsLiveData).

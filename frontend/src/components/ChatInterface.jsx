@@ -144,7 +144,9 @@ export default function ChatInterface({ userType, language, onBack }) {
         sender: 'assistant',
         text: data.answer,
         sources: data.sources,
-        warning: data.warning
+        warning: data.warning,
+        intent: data.intent,
+        actionable_next_step: data.actionable_next_step
       }]);
     } catch (err) {
       console.error(err);
@@ -269,6 +271,14 @@ export default function ChatInterface({ userType, language, onBack }) {
                           : 'bg-white border border-slate-200 text-slate-800 rounded-bl-none'
                       }`}
                     >
+                      {m.sender === 'assistant' && m.intent && (
+                        <div className="mb-2">
+                          <span className="text-[10px] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">
+                            {m.intent.replace('_', ' ')}
+                          </span>
+                        </div>
+                      )}
+                      
                       <p className="whitespace-pre-line leading-relaxed">{m.text}</p>
 
                       {/* Matched Sources */}
@@ -301,6 +311,14 @@ export default function ChatInterface({ userType, language, onBack }) {
                           <div>
                             <span className="font-semibold">Note:</span> {m.warning}
                           </div>
+                        </div>
+                      )}
+
+                      {/* Actionable Next Step */}
+                      {m.sender === 'assistant' && m.actionable_next_step && (
+                        <div className="mt-2.5 bg-emerald-50 border-l-4 border-emerald-500 p-2.5 rounded text-xs text-emerald-800 flex gap-2">
+                          <div className="font-bold flex-shrink-0">Next Action:</div>
+                          <div>{m.actionable_next_step}</div>
                         </div>
                       )}
                     </div>

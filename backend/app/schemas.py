@@ -53,13 +53,23 @@ class ChatRequest(BaseModel):
             raise ValueError(f"Invalid user type. Allowed options are: {', '.join(ALLOWED_USER_TYPES)}")
         return val_lower
 
+class IntentRoutingInfo(BaseModel):
+    intent: str = Field(..., description="The classified intent of the query.")
+    confidence: float = Field(..., description="The confidence score between 0.0 and 1.0.")
+    needsClarification: bool = Field(..., description="True if query is too ambiguous.")
+    needsLocation: bool = Field(..., description="True if location access is required for live data.")
+    needsLiveData: bool = Field(..., description="True if query requires real-time/live data.")
+
 class SchemeSource(BaseModel):
     name: str = Field(..., description="Official scheme name.")
     url: str = Field(..., description="Official website URL.")
-    last_verified: Optional[str] = Field(None, description="Last date verified.")
+    last_verified: Optional[str] = Field(..., description="Last date verified. Can be null if unknown.")
 
 class ChatResponse(BaseModel):
     answer: str = Field(..., description="AI generated grounded response.")
-    sources: List[SchemeSource] = Field(default=[], description="List of source schemes used.")
+    sources: List[SchemeSource] = Field(..., description="List of source schemes used.")
     warning: str = Field(..., description="Safety or verification warning message.")
     language: str = Field(..., description="Response language indicator.")
+    intent: str = Field(..., description="The intent classified for this query.")
+    actionable_next_step: Optional[str] = Field(..., description="Clear, user-friendly next action instructions. Can be null if clarification is needed.")
+

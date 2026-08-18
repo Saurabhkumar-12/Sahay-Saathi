@@ -1,92 +1,91 @@
-# Sahay Saathi Development Blueprint
+# Sahay Saathi Intent Router Implementation Plan
 
-**Sahay Saathi** is an AI-powered citizen assistance platform designed for underserved communities in India (Problem Statement 5 — AI for Public Good). It assists users in understanding government schemes, eligibility criteria, application procedures, and livelihood/safety information in simple terms, supporting English, Hindi, and Hinglish.
-
-This plan details the MVP scaffolding, layout, architecture, and technology implementation.
+This plan details transitioning Sahay Saathi from a category-based direct scheme matching system to an **Intent Router** architecture. We will analyze intent first, handle confidence levels and live-data needs, and perform context-aware response generation with actionable next steps.
 
 ## User Review Required
 
 > [!IMPORTANT]
-> This plan replaces the previous misunderstanding. The target application is now defined as a responsive web-first application using React+Vite for the frontend, Python+FastAPI for the backend, and Gemini API for natural language assistance grounded in official source data.
+> - **Primary Routing:** The backend will route queries based on classified *intent* rather than *userType* directly. `userType` will act strictly as auxiliary context.
+> - **Extensible Architecture:** We will introduce an `IntentRouter` service using structured JSON classification.
+> - **Rich Responses:** We will add `intent` and `actionable_next_step` to the response schema to allow the UI to react to the context.
 
 ## Open Questions
 
-None. The project scope, technical stack, core screens, and test scenarios are fully defined by the official project definition.
+None. The list of 22 intents, confidence requirements, and output schemas are fully specified.
 
 ## Proposed Changes
 
-### Configuration and Documentation
+### Backend Intent Routing & Verification
 
-We will establish the repository structure, documentation, configuration templates, and repository rules.
+We will introduce the Intent Router, adjust validation schemas, update services, and add comprehensive integration tests.
 
-#### [NEW] [README.md](file:///e:/Sahay Saathi/README.md)
-Contains the project overview, setup commands, and technical framework details.
+#### [MODIFY] [backend/app/schemas.py](file:///e:/Sahay Saathi/backend/app/schemas.py)
+- Introduce `IntentRoutingInfo` schema:
+  ```python
+  class IntentRoutingInfo(BaseModel):
+      intent: str
+      confidence: float
+      needsClarification: bool
+      needsLocation: bool
+      needsLiveData: bool
+  ```
+- Update `ChatResponse` to include `intent` and `actionable_next_step`:
+  ```python
+  class ChatResponse(BaseModel):
+      answer: str
+      sources: List[SchemeSource] = []
+      warning: str
+      language: str
+      intent: str
+      actionable_next_step: Optional[str] = None
+  ```
 
-#### [NEW] [architecture.md](file:///e:/Sahay Saathi/architecture.md)
-Outlines the system architecture, API endpoints (`/api/health`, `/api/chat`), security measures, data grounding strategy, and LLM prompting guidelines.
+#### [NEW] [backend/app/services/router.py](file:///e:/Sahay Saathi/backend/app/services/router.py)
+- Create `IntentRouter` using the Gemini API structured output model to classify client input into one of the 22 supported intents.
+- Check confidence levels and set `needsClarification` or flags if required details are missing.
 
-#### [NEW] [implementation_plan.md](file:///e:/Sahay Saathi/implementation_plan.md)
-The version-controlled copy of this implementation plan inside the workspace root.
+#### [MODIFY] [backend/app/services/gemini.py](file:///e:/Sahay Saathi/backend/app/services/gemini.py)
+- Update `generate_assistance` to invoke the `IntentRouter` pipeline.
+- Ground information:
+  - If intent is scheme/eligibility related, query the local database.
+  - If intent is live-data related (e.g., weather, market prices, sea safety) and not grounded in source data, return a polite limitation warning rather than hallucinating.
+  - If `needsClarification` is True, prompt the user for clarifying details.
+- Provide simple language translations and an actionable next step for the user.
 
-#### [NEW] [.gitignore](file:///e:/Sahay Saathi/.gitignore)
-Rules to prevent committing `.env`, dependencies, build output, and credential secrets.
-
-#### [NEW] [.env.example](file:///e:/Sahay Saathi/.env.example)
-Example environment variables for port configurations, rate limits, and Gemini API Key placeholders.
+#### [MODIFY] [backend/tests/test_api.py](file:///e:/Sahay Saathi/backend/tests/test_api.py)
+- Add backend test cases covering key intents across multiple user categories:
+  - `Farmer + PM Kisan` -> `government_scheme`
+  - `Farmer + water shortage` -> `irrigation`
+  - `Farmer + rain` -> `weather`
+  - `Farmer + crop disease` -> `crop_health`
+  - `Farmer + crop price` -> `market_price`
+  - `Street Vendor + loan` -> `financial_support`
+  - `Street Vendor + stock decision` -> `inventory`
+  - `Artisan + pricing` -> `pricing`
+  - `Artisan + selling online` -> `market_access`
+  - `Fisherman + sea safety` -> `safety`
+  - `Rural Worker + skill training` -> `skill_development`
+  - `Person with Disability + accessible service` -> `accessibility`
+  - `Citizen + pension` -> `government_service`
 
 ---
 
-### Backend Scaffolding
+### Frontend Adapters
 
-Set up a simple FastAPI REST API with input validation, rate limiting, and Gemini grounding.
+We will update the UI to display the classified intent type and the actionable next step.
 
-#### [NEW] [backend/requirements.txt](file:///e:/Sahay Saathi/backend/requirements.txt)
-FastAPI, Uvicorn, Pydantic, Slowapi (rate limiting), Google GenAI SDK, and pytest.
-
-#### [NEW] [backend/app/main.py](file:///e:/Sahay Saathi/backend/app/main.py)
-FastAPI app containing health check and chat endpoints, CORS settings, error handlers, and rate limiter.
-
-#### [NEW] [backend/app/schemas.py](file:///e:/Sahay Saathi/backend/app/schemas.py)
-Pydantic schemas for strict request/response validation (chat request, response parameters).
-
-#### [NEW] [backend/app/services/gemini.py](file:///e:/Sahay Saathi/backend/app/services/gemini.py)
-Gemini client wrapper with system instructions enforcing grounding, simple language, and context-dependent personas (Farmer, Street Vendor, etc.).
-
-#### [NEW] [backend/data/knowledge_base.json](file:///e:/Sahay Saathi/backend/data/knowledge_base.json)
-A curated database of official government schemes (PM-Kisan, PM SVANidhi, PM Vishwakarma, etc.) for source-grounding the LLM.
-
----
-
-### Frontend Scaffolding
-
-Set up a responsive React + Vite application.
-
-#### [NEW] [frontend/package.json](file:///e:/Sahay Saathi/frontend/package.json)
-React, React DOM, Tailwind CSS (for accessible, responsive styling), and Lucide React (icons).
-
-#### [NEW] [frontend/src/App.jsx](file:///e:/Sahay Saathi/frontend/src/App.jsx)
-Main component orchestrating flow transitions: Home → Select User Type → Language Selection → AI Chat Interface.
-
-#### [NEW] [frontend/src/components/ChatInterface.jsx](file:///e:/Sahay Saathi/frontend/src/components/ChatInterface.jsx)
-Accessible chat view rendering user/assistant messages, sources, alerts, warnings, and loading indicators.
+#### [MODIFY] [frontend/src/components/ChatInterface.jsx](file:///e:/Sahay Saathi/frontend/src/components/ChatInterface.jsx)
+- Display the actionable next step clearly at the bottom of the assistant's message card.
+- Adapt the UI icons or badges based on the returned query `intent`.
 
 ## Verification Plan
 
 ### Automated Tests
-
-We will run backend integration tests to check schema validation, rate limiting, and response format.
-```bash
-pytest backend/tests/
-```
+- Run the expanded test suite using pytest to verify 100% routing accuracy:
+  ```bash
+  pytest backend/tests/
+  ```
 
 ### Manual Verification
-
-We will manually test the following chat inputs using the `/api/chat` API or the UI:
-1. **Hindi/Hinglish Query (Farmer Context):** `"PM Kisan ke liye kaun eligible hai?"`
-2. **English Query (Farmer Context):** `"Who is eligible for PM Kisan?"`
-3. **Street Vendor Context:** `"Mere liye government loan scheme kaun si hai?"`
-4. **Artisan Context:** `"Artisan ke liye government help kya hai?"`
-5. **Safety Query:** `"Mujhe safety ke liye help chahiye."`
-6. **Ambiguous Query:** `"Mujhe scheme chahiye."` (Expect the AI to ask clarifying questions about user category).
-7. **Out-of-scope Query:** `"Tomorrow stock market mein kya hoga?"` (Expect the AI to decline answering).
-8. **Rate Limiting:** Send more than the allowed requests within the window to verify `429 Too Many Requests`.
+- Deploy and verify that the UI renders the correct intent classification and actionable next step alerts.
+- Check rate limiter performance.
